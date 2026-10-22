@@ -1,0 +1,659 @@
+/* ==========================================================
+ * 金故模拟器 · 奶油治愈风样式
+ * ========================================================== */
+
+:root {
+  --bg: #faf3e7;
+  --panel: #fffaf0;
+  --card: #fffdf7;
+  --border: #f0e2cc;
+  --text: #6b4f3a;
+  --text-light: #a78d72;
+  --accent: #e8a13d;
+  --accent-deep: #c98a2e;
+  --accent-soft: #f6d9a6;
+  --danger: #d97b6c;
+  --radius: 16px;
+  --shadow: 0 4px 16px rgba(180, 150, 110, 0.18);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+button { font-family: inherit; }
+
+/* ---------- 顶部状态栏 ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 12px 22px;
+  background: var(--panel);
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.brand { font-size: 20px; font-weight: 800; letter-spacing: 1px; }
+.stats { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+.stat {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* ---------- 欢迎页（每次打开显示的前置信） ---------- */
+.welcome-page {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  overflow-y: auto;
+}
+.welcome-page[hidden] { display: none; }
+.welcome-letter {
+  text-align: center;
+  line-height: 2.2;
+  font-size: 17px;
+  color: var(--text);
+  max-width: 620px;
+  padding: 40px 0;
+}
+.welcome-letter p { margin: 0 0 30px; }
+.welcome-title { font-size: 28px; font-weight: 800; letter-spacing: 3px; margin-bottom: 44px; }
+.welcome-sign { color: var(--text-light); font-size: 15px; }
+.welcome-note { color: var(--text-light); font-size: 13px; margin: -8px 0 10px; }
+#btn-welcome-enter { font-size: 17px; padding: 14px 40px; margin-top: 14px; }
+
+/* ---------- 主布局 ---------- */
+.layout {
+  display: flex;
+  gap: 16px;
+  padding: 18px 22px 110px;
+  max-width: 1800px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 18px;
+}
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.panel-head .panel-title { margin-bottom: 0; }
+.panel-title {
+  font-size: 15px;
+  color: var(--text-light);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.cattery-panel { flex: 1; }
+.log-panel {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- 猫卡网格 ---------- */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 14px;
+}
+/* 三栏（退役/公/母）：各自独立上下滚动 */
+.cat-cols { display: flex; gap: 14px; align-items: flex-start; }
+.cat-col { flex: 1; min-width: 0; }
+.cat-col.col-narrow { flex: 0.5; }   /* 退役编制/纪念册：半宽 */
+.cat-col-title { font-size: 15px; margin: 0 0 10px; }
+.panel-count { font-size: 13px; color: var(--text-light); margin: 0 0 10px; }
+.cat-col .cat-grid {
+  grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+  overflow-y: auto;
+  max-height: calc(100vh - 270px);
+  padding: 2px;   /* 给卡片白边阴影留位，避免被滚动区裁掉 */
+}
+/* 公猫/母猫栏：固定两列并排，卡片相应缩小 */
+#cat-grid-m, #cat-grid-f {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* ---------- 纪念册（第四栏） ---------- */
+.memorial-list {
+  overflow: hidden;
+  max-height: calc(100vh - 270px);
+  padding: 2px;
+}
+.memorial-track.auto {
+  animation: memorialScroll linear infinite;
+}
+.memorial-list:hover .memorial-track.auto {
+  animation-play-state: paused;   /* 悬停暂停 */
+}
+@keyframes memorialScroll {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }   /* 内容双份，滚一半即无缝循环 */
+}
+.memorial-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.memorial-name { font-weight: 700; margin-right: 6px; }
+.memorial-age { color: var(--text-light); font-size: 12px; }
+.memorial-empty {
+  text-align: center;
+  color: var(--text-light);
+  font-size: 13px;
+  padding: 40px 6px;
+}
+
+/* ---------- 每月大事记 ---------- */
+.digest-list { margin: 4px 0 14px; }
+.digest-item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 8px 2px;
+  border-bottom: 1px dashed var(--border);
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: left;
+}
+.digest-item:last-child { border-bottom: none; }
+.digest-icon { flex-shrink: 0; }
+.cat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 10px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+  position: relative;
+}
+.cat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.cat-card.star { border-color: var(--accent-soft); box-shadow: 0 0 0 2px var(--accent-soft) inset; }
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  border: 3px solid #fff;
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
+}
+.avatar-lg { width: 128px; height: 128px; font-size: 56px; margin: 0; }
+.avatar-sm { width: 36px; height: 36px; font-size: 18px; margin: 0; border-width: 2px; }
+.avatar-img { display: block; object-fit: cover; padding: 0; background: #efe5d5; }
+
+.cat-name { font-weight: 700; font-size: 16px; }
+.cat-age { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+.cat-coat { font-size: 12px; color: var(--accent-deep); margin-top: 6px; }
+.cat-star { font-size: 12px; color: #d9930f; margin-top: 4px; }
+.cat-juv {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #bfe3c0;
+  color: #3d7a34;
+  font-size: 11px;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+.cat-preg { font-size: 12px; color: #c2506f; margin-top: 4px; }
+.cat-rest { font-size: 12px; color: #7a8fc2; margin-top: 4px; }
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-light);
+  padding: 60px 0;
+  font-size: 14px;
+}
+
+/* ---------- 事件日志 ---------- */
+.log-list {
+  list-style: none;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.log-list li { padding: 8px 2px; border-bottom: 1px dashed var(--border); }
+.log-date { color: var(--text-light); font-size: 12px; margin-right: 6px; }
+
+/* ---------- 底部回合按钮 ---------- */
+.footer {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 20;
+}
+.copyright {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-light);
+  pointer-events: auto;
+}
+.copyright .version {
+  font-weight: 700;
+  color: var(--accent-deep);
+}
+.btn-about { background: #efe5d5; color: #8a6d4a; font-weight: 700; padding: 4px 14px; font-size: 12px; }
+.about-text { text-align: left; line-height: 1.7; }
+.about-text p { margin: 0 0 8px; }
+.about-license { color: var(--text-light); font-size: 13px; }
+.btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 22px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; box-shadow: none; }
+.btn-primary {
+  pointer-events: auto;
+  background: linear-gradient(135deg, #f4c56a, #e8a13d);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  padding: 14px 52px;
+  box-shadow: 0 6px 20px rgba(232, 161, 61, 0.45);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(232, 161, 61, 0.5); }
+.btn-ghost { background: var(--bg); border: 1px solid var(--border); color: var(--text); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-block { width: 100%; margin-top: 16px; }
+.btn-sm { padding: 8px 18px; font-size: 14px; }
+.btn-breed { background: var(--accent-soft); color: #8a5c14; font-weight: 700; }
+
+/* ---------- 弹窗 ---------- */
+.modal-root { position: fixed; inset: 0; z-index: 100; }
+.modal-root[hidden] { display: none; }
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(107, 79, 58, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal-card {
+  background: var(--panel);
+  border-radius: 22px;
+  padding: 26px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 14px 44px rgba(80, 55, 30, 0.28);
+}
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg);
+  color: var(--text-light);
+  font-size: 14px;
+  cursor: pointer;
+}
+.modal-head { display: flex; gap: 14px; align-items: center; margin-bottom: 16px; }
+.modal-title { font-size: 20px; font-weight: 800; }
+.rename-btn {
+  border: none;
+  background: var(--bg);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-left: 8px;
+  vertical-align: 3px;
+}
+.rename-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-size: 16px;
+  margin: 14px 0 18px;
+  font-family: inherit;
+  color: var(--text);
+  background: #fff;
+}
+.sex-tag {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 12px;
+  background: var(--accent-soft);
+  color: #8a5c14;
+  border-radius: 999px;
+  padding: 2px 10px;
+  vertical-align: 3px;
+}
+.modal-sub { color: var(--text-light); font-size: 13px; margin-top: 4px; }
+.modal-section { margin-top: 16px; }
+.modal-section h4 {
+  font-size: 14px;
+  color: var(--accent-deep);
+  margin-bottom: 8px;
+  padding-left: 10px;
+  border-left: 3px solid var(--accent);
+}
+.kv { font-size: 14px; padding: 3px 0; }
+.kv span {
+  display: inline-block;
+  width: 64px;
+  color: var(--text-light);
+  font-size: 13px;
+}
+.kv-gradient { margin-top: 10px; }
+
+/* 基因卡 */
+.gene-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.gene-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 10px;
+}
+.gene-locus { font-weight: 800; font-size: 14px; }
+.gene-alleles { color: var(--accent-deep); font-weight: 700; margin: 2px 0; font-size: 14px; }
+.gene-desc { font-size: 11px; color: var(--text-light); line-height: 1.45; }
+
+/* 性格标签 */
+.tags { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 13px;
+}
+
+/* 三代族谱 */
+.ped-row { font-size: 13px; padding: 4px 0; line-height: 1.6; }
+.ped-label {
+  display: inline-block;
+  width: 64px;
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+/* 繁育配对 */
+.modal-breed { max-width: 640px; }
+.breed-cols { display: flex; gap: 12px; margin-top: 14px; }
+.breed-col { flex: 1; min-width: 0; }
+.breed-col h4 { font-size: 13px; color: var(--text-light); margin-bottom: 8px; text-align: center; }
+.breed-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg);
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color .15s ease;
+}
+.breed-item:hover { border-color: var(--accent-soft); }
+.breed-item.sel { border-color: var(--accent); background: #fff; }
+.breed-item.off { opacity: .5; cursor: not-allowed; }
+.breed-item-info { flex: 1; min-width: 0; }
+.breed-item-name { font-weight: 700; font-size: 14px; }
+.breed-item-sub { font-size: 12px; color: var(--text-light); }
+.breed-item-reason { font-size: 12px; color: var(--danger); white-space: nowrap; }
+.breed-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+/* 近亲检查报告 */
+.modal-report { max-width: 400px; }
+.report-pair { text-align: center; font-size: 16px; font-weight: 700; margin: 12px 0; }
+.report-box {
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 10px;
+  text-align: center;
+}
+.report-safe   { background: #e6f4e2; color: #3d7a34; }
+.report-info   { background: #fdf3d8; color: #8a6d1a; }
+.report-warn   { background: #fdeacc; color: #a05a12; }
+.report-danger { background: #fbdedd; color: #b03a2e; font-weight: 700; }
+
+/* 产窝结算 */
+.modal-litter { max-width: 440px; }
+.litter-sire { text-align: center; }
+.litter-stats {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 14px 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+.litter-stats .ok { color: #3d7a34; }
+.litter-stats .bad { color: #b03a2e; }
+.kitten-list { margin-top: 12px; max-height: 300px; overflow-y: auto; }
+.kitten-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+.kitten-info { min-width: 0; }
+.kitten-name { font-weight: 700; font-size: 14px; }
+.kitten-sub { font-size: 12px; color: var(--text-light); }
+
+/* 讣告 */
+.modal-obit { text-align: center; max-width: 380px; }
+.obit-title { font-size: 20px; font-weight: 800; margin-bottom: 14px; letter-spacing: 6px; }
+.obit {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg);
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-top: 10px;
+  text-align: left;
+}
+.obit-icon { font-size: 26px; }
+.obit-name { font-weight: 700; }
+.obit-text { font-size: 13px; color: var(--text-light); margin-top: 2px; }
+.obit-note { font-size: 12px; color: var(--text-light); margin-top: 14px; }
+
+/* 确认弹窗 */
+.modal-confirm { max-width: 360px; }
+.confirm-text { font-size: 14px; line-height: 1.7; margin: 12px 0 18px; }
+.confirm-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ---------- 第三阶段新增 ---------- */
+.panel-actions { display: flex; gap: 8px; }
+.btn-market { background: #d9e6f7; color: #3a5c8a; font-weight: 700; }
+.btn-live { background: #f7d9e0; color: #8a3a52; font-weight: 700; }
+
+/* 退役徽章（与幼年徽章互斥，都在左上角） */
+.cat-retired {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: #e4d9f5;
+  color: #6b4fa0;
+  font-size: 11px;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+.cat-card.retired { opacity: .88; }
+
+/* 详情弹窗：出售行 / 退役按钮组 */
+.sell-line { font-size: 14px; display: flex; align-items: center; gap: 10px; }
+.sell-line b { color: var(--accent-deep); }
+.retire-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* 外部商场 */
+.modal-market { max-width: 620px; }
+.market-list { margin-top: 12px; max-height: 55vh; overflow-y: auto; }
+.market-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+}
+.market-info { flex: 1; min-width: 0; }
+.market-name { font-weight: 700; font-size: 14px; }
+.market-sub { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+.market-genes { font-size: 11px; color: var(--accent-deep); margin-top: 3px; line-height: 1.5; }
+.market-genes.dim { color: var(--text-light); }
+.market-buy { text-align: center; flex-shrink: 0; }
+.market-price { font-size: 14px; font-weight: 800; color: var(--accent-deep); margin-bottom: 6px; white-space: nowrap; }
+.market-msg {
+  margin-top: 10px;
+  background: #e6f4e2;
+  color: #3d7a34;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.market-msg.err { background: #fbdedd; color: #b03a2e; }
+
+/* 坏结局 */
+.modal-gameover { text-align: center; max-width: 420px; }
+.go-title { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+.go-text { font-size: 14px; color: var(--text-light); line-height: 1.8; }
+.go-stats {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 18px 0 6px;
+  flex-wrap: wrap;
+}
+.go-stat {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--text-light);
+  min-width: 100px;
+}
+.go-stat span { display: block; font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+
+/* ---------- 结局感谢页（一封安静的信：大留白、大字号） ---------- */
+.thanks-page {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  width: min(680px, 94vw);
+  min-height: 70vh;
+  max-height: 92vh;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 72px 56px;
+}
+.thanks-letter { text-align: center; line-height: 2.2; font-size: 17px; color: var(--text); }
+.thanks-letter p { margin: 0 0 28px; }
+.thanks-lead { font-size: 26px; font-weight: 800; letter-spacing: 4px; }
+.thanks-letter b { color: var(--accent-deep); font-size: 20px; padding: 0 2px; }
+.thanks-sign { color: var(--text-light); font-size: 15px; }
+.thanks-share-line { color: var(--text-light); font-size: 15px; margin-top: 40px; }
+.thanks-btns { display: flex; gap: 14px; justify-content: center; margin-top: 8px; }
+.thanks-tip { margin-top: 18px; font-size: 14px; color: var(--accent-deep); }
+
+/* ---------- 第四阶段新增 ---------- */
+/* 事件卡（闯祸/曝光/求救） */
+.modal-event { text-align: center; max-width: 400px; }
+.event-icon { font-size: 40px; margin-bottom: 6px; }
+.event-text { font-size: 14px; line-height: 1.9; margin: 12px 0 6px; }
+.event-text b { color: var(--accent-deep); }
+
+/* 70年结算评级 */
+.go-rating {
+  display: inline-block;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent-deep);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 8px 26px;
+  margin: 10px 0 4px;
+}
+
+/* ---------- 小屏适配 ---------- */
+@media (max-width: 820px) {
+  .layout { flex-direction: column; }
+  .cat-cols { flex-direction: column; }
+  .cat-col .cat-grid { max-height: 260px; }
+  .log-panel { width: 100%; }
+  .log-list { max-height: 180px; }
+  .gene-grid { grid-template-columns: repeat(2, 1fr); }
+  .breed-cols { flex-direction: column; }
+}

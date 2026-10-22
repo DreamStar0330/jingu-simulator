@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>金故模拟器 · 英国长毛猫猫舍经营</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 欢迎页：每次打开先显示，点击进入猫舍；纯前置页，不涉及存档与游戏逻辑 -->
+  <div class="welcome-page" id="welcome-page">
+    <div class="welcome-letter">
+      <div class="welcome-title">欢迎来到《金故模拟器》</div>
+      <p>你好，我是 Maisie，这个游戏的作者。<br>
+      这里的每一只猫，都有名字、有脾气、有自己的一生。</p>
+      <p>愿你善待它们，就像善待真实的小生命。<br>
+      领养代替购买。<br>
+      它们把一生交给你，请你一定陪到底。</p>
+      <p>这个游戏会一直更新下去。<br>
+      如果你在旅途中遇到任何问题，或想让这间猫舍变得更好，<br>
+      欢迎写信给我：15976990190@163.com</p>
+      <p>祝你的猫舍，开张大吉。</p>
+      <p class="welcome-sign">—— 开山老祖 Maisie</p>
+      <p class="welcome-note">本游戏自动存档，随时关掉页面都没关系——下次打开，猫猫们还在原地等你。</p>
+      <button class="btn btn-primary" id="btn-welcome-enter">🐾 进入猫舍</button>
+    </div>
+  </div>
+
+  <!-- 顶部状态栏 -->
+  <header class="topbar">
+    <div class="brand">🐱 金故模拟器</div>
+    <div class="stats">
+      <span class="stat" id="stat-date">第1年1月</span>
+      <span class="stat" id="stat-coins">💰 10000</span>
+      <span class="stat" id="stat-energy">⚡ 10/10</span>
+      <span class="stat" id="stat-fame">⭐ 名声 50/100</span>
+      <span class="stat" id="stat-born">🐣 出生 0</span>
+      <span class="stat" id="stat-deaths">🌈 死亡 0</span>
+    </div>
+    <button class="btn btn-ghost" id="btn-restart">重新开始</button>
+  </header>
+
+  <!-- 主区域：猫舍 + 日志 -->
+  <main class="layout">
+    <section class="panel cattery-panel">
+      <div class="panel-head">
+        <h2 class="panel-title">猫舍居民</h2>
+        <div class="panel-actions">
+          <button class="btn btn-sm btn-market" id="btn-market">🛒 外部商场</button>
+          <button class="btn btn-sm btn-live" id="btn-live">📺 直播赚钱</button>
+          <button class="btn btn-sm btn-breed" id="btn-breed">💕 繁育配对</button>
+        </div>
+      </div>
+      <div class="panel-count" id="cat-counts">在职猫咪 0 只（公0 · 母0 · 退役0）</div>
+      <div class="empty" id="cat-empty" hidden>猫舍空空如也，静待新的猫咪到来…</div>
+      <div class="cat-cols">
+        <div class="cat-col col-narrow">
+          <h3 class="cat-col-title" id="cat-title-r">🎓 退役编制（0只）</h3>
+          <div class="cat-grid" id="cat-grid-r"></div>
+        </div>
+        <div class="cat-col">
+          <h3 class="cat-col-title" id="cat-title-m">公猫（0只）</h3>
+          <div class="cat-grid" id="cat-grid-m"></div>
+        </div>
+        <div class="cat-col">
+          <h3 class="cat-col-title" id="cat-title-f">母猫（0只）</h3>
+          <div class="cat-grid" id="cat-grid-f"></div>
+        </div>
+        <div class="cat-col col-narrow">
+          <h3 class="cat-col-title" id="cat-title-mem">🕯 纪念册（0）</h3>
+          <div class="memorial-list" id="memorial-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel log-panel">
+      <h2 class="panel-title">事件日志</h2>
+      <ul class="log-list" id="log-list"></ul>
+    </aside>
+  </main>
+
+  <!-- 底部回合按钮 + 署名页脚 -->
+  <footer class="footer">
+    <button class="btn btn-primary" id="btn-next">下一月 ▶</button>
+    <div class="copyright">
+      <span class="version">金故模拟器 v1.1</span>
+      <span>《金故模拟器》 · 开山老祖：Maisie · Bug与改进建议：15976990190@163.com</span>
+      <button class="btn btn-sm btn-about" id="btn-about">关于</button>
+    </div>
+  </footer>
+
+  <!-- 弹窗容器 -->
+  <div class="modal-root" id="modal-root" hidden></div>
+
+  <script src="data.js"></script>
+  <script src="genetics.js"></script>
+  <script src="cat.js"></script>
+  <script src="game.js"></script>
+  <script src="ui.js"></script>
+
+</body>
+</html>
